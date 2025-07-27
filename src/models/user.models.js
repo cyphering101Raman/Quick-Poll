@@ -22,17 +22,13 @@ const UserSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+    gender:{
+      type: "String",
+      required: true
+    },
     password: {
       type: String,
-      required: [true, 'Password required']
-    },
-    avatar: {
-      type: String, // cloudinary url
-      required: true,
-    },
-    role: {
-      type: String,
-      default: "user",
+      required: [true, 'Password is required']
     }
   }, { timestamps: true });
 
