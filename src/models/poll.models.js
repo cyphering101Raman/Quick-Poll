@@ -1,5 +1,4 @@
-import mongoose, { mongo } from "mongoose";
-import User from "./user.models.js";
+import mongoose from "mongoose";
 
 const PollSchema = new mongoose.Schema(
   {
@@ -35,7 +34,7 @@ const PollSchema = new mongoose.Schema(
     ],
     expiredAt: {
       type: Date,
-      default: () => Date.now + (24 * 60 * 60 * 1000),
+      default: () => Date.now() + 24 * 60 * 60 * 1000
     }
   }, { timestamps: true }
 )

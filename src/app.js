@@ -16,14 +16,6 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 
-app.use("/api/users", userRoutes)
-
-app.get("/", (req, res)=>{
-  res.send("Home page.")
-})
-app.get("/user", (req, res)=>{
-  res.send("User page.")
-})
-
+app.use("/api/v1/users", userRoutes)
 
 export {app}
