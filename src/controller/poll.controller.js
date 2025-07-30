@@ -22,7 +22,7 @@ const createPoll = asyncHandler(async (req, res) => {
   const { question, options } = req.body;
 
   if (!question?.trim()) throw new ApiError(401, "Poll question is required");
-  if (options.length < 2) throw new ApiError(401, "At least 2 poll options are required");
+  if (!options ||options.length < 2) throw new ApiError(401, "At least 2 poll options are required");
 
   const createdPoll = await Poll.create({
     question,
@@ -39,7 +39,7 @@ const getAllPolls = asyncHandler(async (req, res) => {
   // keep Active and Expired Poll seperated
   // return to frontend
 
-  const allPolls = await Poll.find().select("-votedUsers").sort({ createdAt: -1 })
+  const allPolls = await Poll.find().select("-votedUsers").populate("createdBy", "fullName").sort({ createdAt: -1 })
 
   if (!allPolls || allPolls.length === 0) throw new ApiError(500, "No polls found.");
 
