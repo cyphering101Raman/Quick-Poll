@@ -6,7 +6,8 @@ dotenv.config();
 
 const options = {
   httpOnly: true,
-  secure: true
+  secure: true,
+  path: "/"
 }
 
 const registerUser = asyncHandler(async (req, res) => {

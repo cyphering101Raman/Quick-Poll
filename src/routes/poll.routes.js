@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import {createPoll, getAllPolls, votePoll, deletePoll} from "../controller/poll.controller.js"
 
-import authMiddleware from "../middlewares/auth.middleware.js";
+import {authMiddleware} from "../middlewares/auth.middleware.js";
 
 const route = Router()
 
