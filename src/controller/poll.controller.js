@@ -22,7 +22,7 @@ const createPoll = asyncHandler(async (req, res) => {
   const { question, options } = req.body;
 
   if (!question?.trim()) throw new ApiError(401, "Poll question is required");
-  if (!options ||options.length < 2) throw new ApiError(401, "At least 2 poll options are required");
+  if (!options || options.length < 2) throw new ApiError(401, "At least 2 poll options are required");
 
   const createdPoll = await Poll.create({
     question,
@@ -72,7 +72,8 @@ const votePoll = asyncHandler(async (req, res) => {
   const user = await User.findById(decodedToken._id)
   if (!user) throw new ApiError(400, "User does not exist.");
 
-  const { pollId, optionIndex } = req.body
+  const pollId = req.params.id;
+  const { optionIndex } = req.body
   if (!pollId || optionIndex === undefined) throw new ApiError(400, "Poll ID and option index are required.");
 
   const poll = await Poll.findById(pollId)
@@ -122,9 +123,22 @@ const deletePoll = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, "Poll deleted successfully."))
 })
 
+const getPollById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const poll = await Poll.findById(id)
+    .populate("createdBy", "fullName username")
+    .populate("votedUsers", "fullName username email option");
+
+  if (!poll) throw new ApiError(404, "Poll not found.");
+
+  return res.status(200).json(new ApiResponse(200, poll, "Poll fetched successfully."));
+});
+
 export {
   createPoll,
   getAllPolls,
   votePoll,
-  deletePoll
+  deletePoll,
+  getPollById
 }
