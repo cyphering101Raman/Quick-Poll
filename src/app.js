@@ -20,4 +20,16 @@ app.use(cookieParser())
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/", pollRoutes)
 
+// ✅ GLOBAL ERROR HANDLER
+app.use((err, req, res, next) => {
+  console.error("Global Error Caught:", err);
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    statusCode: err.statusCode || 500,
+    errors: err.errors || []
+  });
+});
+
 export {app}
