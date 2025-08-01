@@ -66,11 +66,11 @@ const loginUser = asyncHandler(async (req, res) => {
     $or: [{ email: userid }, { username: userid }]
   })
 
-  if (!user) throw new ApiError(401, "No user found with provided credentials");
+  if (!user) throw new ApiError(401, "Invalid credentials");
 
   const passwordCheck = await user.isPasswordValid(password)
 
-  if (!passwordCheck) throw new ApiError(401, "Incorrect password");
+  if (!passwordCheck) throw new ApiError(401, "Invalid credentials");
 
   const loggedinUser = await User.findById(user._id).select("-password")
 
