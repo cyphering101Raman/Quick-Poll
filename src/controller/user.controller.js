@@ -41,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (!createdUser) throw new ApiError(500, "Something went wrong while registering user")
 
-  const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN })
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN })
 
   return res.status(201)
     .cookie("token", token, options)
@@ -74,7 +74,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const loggedinUser = await User.findById(user._id).select("-password")
 
-  const token = jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN })
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN })
 
   return res.status(200)
     .cookie("token", token, options)
@@ -85,12 +85,55 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
   return res.status(200)
-  .clearCookie("token", options)
-  .json(new ApiResponse(200, null, "User logged out successfully"));
+    .clearCookie("token", options)
+    .json(new ApiResponse(200, null, "User logged out successfully"));
+})
+
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const allowedUpdates = ["fullName", "username", "email", "gender"]
+  const updates = Object.keys(req.body);
+
+  const isValid = updates.every(field => allowedUpdates.includes(field));
+  if (!isValid) throw new ApiError(400, "Invalid update fields.");
+
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, "User not found");
+
+  updates.forEach(field => {
+    if (req.body[field] !== undefined) {
+      user[field] = req.body[field];
+    }
+  });
+
+  await user.save();
+
+  const updatedUser = await User.findById(user._id).select("-password");
+
+  return res.status(200).json(new ApiResponse(200, updatedUser, "User updated successfully"));
+
+})
+
+const changePassword = asyncHandler(async (req, res) => {
+  const {oldPassword, newPassword} = req.body;
+  if(!oldPassword || !newPassword) throw new ApiError(400, "Password didn't received.")
+    
+  const user = await User.findById(req.user._id)
+  if (!user) throw new ApiError(400, "Unathorised User");
+
+
+  const isValidPass = await user.isPasswordValid(oldPassword);
+  if(!isValidPass) throw new ApiError(401, "Old password is incorrect");
+
+  user.password = newPassword
+  await user.save();
+
+  return res.status(200).json(new ApiResponse(200, null, "Password changed successfully."));
 })
 
 export {
   registerUser,
   loginUser,
-  logoutUser
+  logoutUser,
+  updateUserProfile,
+  changePassword
 };
