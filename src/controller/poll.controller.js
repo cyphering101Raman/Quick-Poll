@@ -39,7 +39,7 @@ const getAllPolls = asyncHandler(async (req, res) => {
   // keep Active and Expired Poll seperated
   // return to frontend
 
-  const allPolls = await Poll.find().select("-votedUsers").populate("createdBy", "fullName").sort({ createdAt: -1 })
+  const allPolls = await Poll.find().populate("createdBy", "fullName").sort({ createdAt: -1 })
 
   if (!allPolls || allPolls.length === 0) throw new ApiError(500, "No polls found.");
 
