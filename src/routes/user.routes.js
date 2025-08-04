@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser, updateUserProfile, changePassword } from "../controller/user.controller.js";
+import { registerUser, loginUser, logoutUser, updateUserProfile, changePassword, deleteAccount } from "../controller/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 import User from "../models/user.models.js"
@@ -23,5 +23,6 @@ route.post("/login", loginUser)
 route.post("/logout", logoutUser)
 route.patch("/me", authMiddleware, updateUserProfile);
 route.patch("/change/password", authMiddleware, changePassword)
+route.delete("/delete/account", authMiddleware, deleteAccount);
 
 export default route;

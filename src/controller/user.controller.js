@@ -66,7 +66,7 @@ const loginUser = asyncHandler(async (req, res) => {
     $or: [{ email: userid }, { username: userid }]
   })
 
-  if (!user) throw new ApiError(401, "Invalid credentials");
+  if (!user) throw new ApiError(401, "User does not exist");
 
   const passwordCheck = await user.isPasswordValid(password)
 
@@ -130,10 +130,23 @@ const changePassword = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, "Password changed successfully."));
 })
 
+const deleteAccount = asyncHandler(async (req, res) => {
+  const deletedUser = await User.findByIdAndDelete(req.user._id);
+
+  if (!deletedUser) {
+    throw new ApiError(404, "User not found or already deleted");
+  }
+
+  res.clearCookie("token", options); // This ensures the user is signed out
+  return res.status(200).json(new ApiResponse(200, null, "Account deleted successfully"));
+});
+
+
 export {
   registerUser,
   loginUser,
   logoutUser,
   updateUserProfile,
-  changePassword
+  changePassword,
+  deleteAccount
 };
