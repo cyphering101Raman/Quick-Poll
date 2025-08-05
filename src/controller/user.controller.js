@@ -161,7 +161,6 @@ const googleLoginUser = asyncHandler(async (req, res) => {
   }
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN });
-  const options = { httpOnly: true, secure: true, path: "/" };
   const loggedinUser = await User.findById(user._id).select("-password");
 
   return res.status(200).cookie("token", token, options)
