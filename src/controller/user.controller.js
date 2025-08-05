@@ -1,6 +1,7 @@
 import { asyncHandler, ApiResponse, ApiError } from "../utils/index.js"
 import User from "../models/user.models.js"
 import jwt from "jsonwebtoken"
+import admin from "../firebase.js";
 import dotenv from "dotenv"
 dotenv.config();
 
@@ -141,6 +142,32 @@ const deleteAccount = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, "Account deleted successfully"));
 });
 
+const googleLoginUser = asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) throw new ApiError(400, "Google credential is missing");
+
+  // Verify and decode the token using Firebase Admin
+  const decoded = await admin.auth().verifyIdToken(credential);
+
+  let user = await User.findOne({ email: decoded.email });
+  if (!user) {
+    user = await User.create({
+      username: decoded.email.split("@")[0],
+      fullName: decoded.name || decoded.email.split("@")[0],
+      email: decoded.email,
+      gender: "other",
+      password: "google"
+    });
+  }
+
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE_IN });
+  const options = { httpOnly: true, secure: true, path: "/" };
+  const loggedinUser = await User.findById(user._id).select("-password");
+
+  return res.status(200).cookie("token", token, options)
+    .json(new ApiResponse(200, loggedinUser, "Google login successful"));
+});
+
 
 export {
   registerUser,
@@ -148,5 +175,6 @@ export {
   logoutUser,
   updateUserProfile,
   changePassword,
-  deleteAccount
+  deleteAccount,
+  googleLoginUser
 };
