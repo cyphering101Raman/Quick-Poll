@@ -19,7 +19,7 @@ const createPoll = asyncHandler(async (req, res) => {
   const user = await User.findById(decodedToken._id)
   if (!user) throw new ApiError(401, "User not found");
 
-  const { question, options } = req.body;
+  const { question, options, expiredAt } = req.body;
 
   if (!question?.trim()) throw new ApiError(401, "Poll question is required");
   if (!options || options.length < 2) throw new ApiError(401, "At least 2 poll options are required");
@@ -27,6 +27,7 @@ const createPoll = asyncHandler(async (req, res) => {
   const createdPoll = await Poll.create({
     question,
     options,
+    expiredAt: expiredAt ? new Date(expiredAt) : undefined,
     createdBy: user._id,
   })
 
