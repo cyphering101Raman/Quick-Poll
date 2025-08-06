@@ -8,6 +8,7 @@ dotenv.config();
 const options = {
   httpOnly: true,
   secure: true,
+  sameSite: "None",
   path: "/"
 }
 
